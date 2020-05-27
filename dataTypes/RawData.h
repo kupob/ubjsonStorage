@@ -3,9 +3,13 @@
 #include <optional>
 #include <string>
 
-struct RawData {
+#include "../UbjsonCpp/include/value.hpp"
 
-};
+//struct RawData {
+//
+//};
+
+typedef ubjson::Value RawData;
 
 template<typename T>
 std::optional<T> fromRawData(const RawData& data);

@@ -15,8 +15,10 @@ public:
     ~ConfigReader();
 
 public:
-    int64_t getMaxFileSize() const noexcept { return m_maxFileSize; }
-    std::string getStoragePath() const noexcept { return m_storagePath; }
+    inline bool isCfgLoaded() const { return cfgLoaded; }
+
+    inline int64_t getMaxFileSize() const noexcept { return m_maxFileSize; }
+    inline std::string getStoragePath() const noexcept { return m_storagePath; }
 
 private:
     bool read();

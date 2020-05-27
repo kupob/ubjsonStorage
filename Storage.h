@@ -4,9 +4,12 @@
 #include "dataTypes/RawData.h"
 
 #include <optional>
+#include <string>
 
 namespace ebmlio
 {
+
+class ConfigReader;
 
 class Storage {
 
@@ -21,12 +24,22 @@ public:
 
     template<typename T>
     std::optional<T> load(TimeStamp time) {
-        return fromRawData<T>(m_load(time));
+        auto optRaw = m_load(time);
+        return optRaw.has_value() ? fromRawData<T>(optRaw.value()) : std::optional<T>();
     }
 
 private:
     void m_save(TimeStamp time, const RawData& data);
-    RawData m_load(TimeStamp time);
+    std::optional<RawData> m_load(TimeStamp time);
+
+    void checkStorageDir();
+    std::string findFile(TimeStamp time);
+
+    std::string timeToString(TimeStamp time);
+    TimeStamp timeFromString(const std::string& data);
+
+private:
+    std::unique_ptr<ConfigReader> config;
 };
 
 }

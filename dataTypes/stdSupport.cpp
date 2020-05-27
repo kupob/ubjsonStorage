@@ -1,16 +1,16 @@
 
 #include "stdSupport.h"
 
+#include <string>
+
 template<>
 RawData toRawData(const std::string& data)
 {
-    RawData result;
-    return result;
+    return data;
 }
 
 template<>
 std::optional<std::string> fromRawData (const RawData& data)
 {
-    std::string result;
-    return result;
+    return data.asString();
 }

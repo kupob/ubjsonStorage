@@ -4,8 +4,10 @@ project(ebmlio)
 set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(json)
-#add_subdirectory(libebml)
-add_subdirectory(dataTypes)
+add_subdirectory(UbjsonCpp)
+
+find_package(EBML 1.3.9 REQUIRED)
+find_package(Matroska CONFIG REQUIRED)
 
 add_library(ebmlio SHARED
         Storage.cpp
@@ -20,5 +22,7 @@ add_library(ebmlio SHARED
 
         logger/log.h)
 
-target_link_libraries(ebmlio PRIVATE nlohmann_json::nlohmann_json)
-#target_link_libraries(ebmlio PRIVATE libebml)
+target_link_libraries(ebmlio PUBLIC nlohmann_json::nlohmann_json)
+target_link_libraries(ebmlio PUBLIC EBML::ebml)
+target_link_libraries(ebmlio PRIVATE Matroska::matroska)
+target_link_libraries(ebmlio PUBLIC UbjsonCpp)
