@@ -90,7 +90,7 @@ std::optional<RawData> Storage::m_load(TimeStamp time)
 void Storage::checkStorageDir()
 {
     if (!fs::exists(config->getStoragePath()))
-        fs::create_directory(config->getStoragePath());
+        fs::create_directories(config->getStoragePath());
 }
 
 std::string Storage::findFile(TimeStamp time)
