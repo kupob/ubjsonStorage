@@ -20,7 +20,12 @@ void Storage::m_save(TimeStamp time, const RawData& data)
 
 std::optional<RawData> Storage::m_load(TimeStamp time)
 {
-    return pImpl->m_load(time);
+    return pImpl->load(time);
+}
+
+std::vector<RawData> Storage::m_loadRange(TimeStamp from, TimeStamp to)
+{
+    return pImpl->loadRange(from, to);
 }
 
 void Storage::beginInsert(TimeStamp time)

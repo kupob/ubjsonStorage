@@ -33,6 +33,17 @@ public:
         return optRaw.has_value() ? fromRawData<T>(optRaw.value()) : std::optional<T>();
     }
 
+    template<typename T>
+    std::vector<T> loadRange(TimeStamp from, TimeStamp to) {
+        std::vector<T> result;
+
+        for (const auto& data : m_loadRange(from, to)) {
+            result.emplace_back(fromRawData<T>(data));
+        }
+
+        return result;
+    }
+
     ///< Better for multiple saves but you should embrace it with beginInsert() and endInsert()
     template<typename T>
     void insert(TimeStamp time, const T& data) {
@@ -46,6 +57,7 @@ public:
 private:
     void m_save(TimeStamp time, const RawData& data);
     std::optional<RawData> m_load(TimeStamp time);
+    std::vector<RawData> m_loadRange(TimeStamp from, TimeStamp to);
 
     void m_insert(TimeStamp time, const RawData& data);
 };

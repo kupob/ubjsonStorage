@@ -42,7 +42,7 @@ void StoragePrivate::save(TimeStamp time, const RawData& data)
     endInsert();
 }
 
-std::optional<RawData> StoragePrivate::m_load(TimeStamp time)
+std::optional<RawData> StoragePrivate::load(TimeStamp time)
 {
     auto fileName = findFile(time);
     auto file = std::filesystem::path (fileName);
@@ -62,6 +62,11 @@ std::optional<RawData> StoragePrivate::m_load(TimeStamp time)
     if (it != obj.end())
         return *it;
 
+    return {};
+}
+
+std::vector<RawData> StoragePrivate::loadRange(TimeStamp from, TimeStamp to)
+{
     return {};
 }
 

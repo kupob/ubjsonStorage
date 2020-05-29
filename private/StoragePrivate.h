@@ -19,7 +19,8 @@ public:
 
 private:
     void save(TimeStamp time, const RawData& data);
-    std::optional<RawData> m_load(TimeStamp time);
+    std::optional<RawData> load(TimeStamp time);
+    std::vector<RawData> loadRange(TimeStamp from, TimeStamp to);
     void insert(TimeStamp time, const RawData& data);
 
     void beginInsert(TimeStamp time);
