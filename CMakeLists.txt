@@ -25,6 +25,8 @@ add_library(ubjsonStorage SHARED
 
         private/StoragePrivate.cpp
         private/StoragePrivate.h
+
+        endian.h
         )
 
 target_link_libraries(ubjsonStorage PUBLIC nlohmann_json::nlohmann_json)
