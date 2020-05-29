@@ -5,14 +5,15 @@
 
 #include "../UbjsonCpp/include/value.hpp"
 
-//struct RawData {
-//
-//};
+namespace ebmlio
+{
 
 typedef ubjson::Value RawData;
 
 template<typename T>
-std::optional<T> fromRawData(const RawData& data);
+std::optional<T> fromRawData(const RawData &data);
 
 template<typename T>
-RawData toRawData(const T& data);
+RawData toRawData(const T &data);
+
+}

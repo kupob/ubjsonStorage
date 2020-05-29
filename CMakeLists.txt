@@ -19,8 +19,13 @@ add_library(ebmlio SHARED
         dataTypes/stdSupport.h
         dataTypes/stdSupport.cpp
         dataTypes/TimeStamp.h
+        dataTypes/FileInfo.h
 
-        logger/log.h)
+        logger/log.h
+
+        private/StoragePrivate.cpp
+        private/StoragePrivate.h
+        )
 
 target_link_libraries(ebmlio PUBLIC nlohmann_json::nlohmann_json)
 target_link_libraries(ebmlio PUBLIC EBML::ebml)
