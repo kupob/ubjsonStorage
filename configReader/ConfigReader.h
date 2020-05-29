@@ -22,6 +22,7 @@ public:
 
 private:
     bool read();
+    bool createDefault();
 
     bool parseCfgContents(std::string_view data);
     bool checkCfgCompleteness();

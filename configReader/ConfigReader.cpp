@@ -15,10 +15,25 @@ namespace storage
 
 constexpr auto CFG_PATH = "ioconfig.cfg";
 
+#ifdef __linux__
+constexpr auto STORAGE_PATH_DEFAULT = "/tmp/storage/";
+#elif _WIN32
+constexpr auto STORAGE_PATH_DEFAULT = "%temp%/storage/";
+#elif __APPLE__
+constexpr auto STORAGE_PATH_DEFAULT = "/tmp/storage/";
+#endif
+
+constexpr auto MAX_FILE_SIZE_DEFAULT = 1000;
+
 ConfigReader::ConfigReader()
 {
     if (!read()) {
-        LOG("Could not read cfg");
+        if (!createDefault()) {
+            LOG("Error writing default config");
+        }
+        else {
+            LOG("Default config created");
+        }
     }
 }
 
@@ -40,6 +55,22 @@ bool ConfigReader::read()
     }
 
     return false;
+}
+
+bool ConfigReader::createDefault()
+{
+    nlohmann::json config;
+    config["max_file_size"] = MAX_FILE_SIZE_DEFAULT;
+    config["storage_path"] = STORAGE_PATH_DEFAULT;
+
+    std::ofstream o(CFG_PATH);
+    o << std::setw(4) << config << std::endl;
+    o.close();
+
+    m_maxFileSize = MAX_FILE_SIZE_DEFAULT;
+    m_storagePath = STORAGE_PATH_DEFAULT;
+
+    return true;
 }
 
 bool ConfigReader::parseCfgContents(std::string_view data)
