@@ -10,7 +10,7 @@
 #include <sstream>
 #include <string>
 
-namespace ebmlio
+namespace storage
 {
 
 constexpr auto CFG_PATH = "ioconfig.cfg";

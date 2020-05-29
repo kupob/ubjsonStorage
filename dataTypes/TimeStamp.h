@@ -2,7 +2,7 @@
 
 #include <ctime>
 
-namespace ebmlio
+namespace storage
 {
 
 typedef std::time_t TimeStamp;

@@ -5,7 +5,7 @@
 #include <string_view>
 #include <string>
 
-namespace ebmlio
+namespace storage
 {
 
 class ConfigReader

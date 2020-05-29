@@ -2,7 +2,7 @@
 
 #include "private/StoragePrivate.h"
 
-namespace ebmlio
+namespace storage
 {
 
 Storage::Storage()

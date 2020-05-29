@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace ebmlio
+namespace storage
 {
 
 template<>

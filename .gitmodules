@@ -6,4 +6,4 @@
 	url = https://github.com/Matroska-Org/libebml
 [submodule "UbjsonCpp"]
 	path = UbjsonCpp
-	url = https://github.com/WhiZTiM/UbjsonCpp
+	url = https://github.com/kupob/UbjsonCpp

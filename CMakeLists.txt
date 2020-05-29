@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(ebmlio)
+project(ubjsonStorage)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -9,7 +9,7 @@ add_subdirectory(UbjsonCpp)
 find_package(EBML 1.3.9 REQUIRED)
 find_package(Matroska CONFIG REQUIRED)
 
-add_library(ebmlio SHARED
+add_library(ubjsonStorage SHARED
         Storage.cpp
         Storage.h
         configReader/ConfigReader.cpp
@@ -27,7 +27,7 @@ add_library(ebmlio SHARED
         private/StoragePrivate.h
         )
 
-target_link_libraries(ebmlio PUBLIC nlohmann_json::nlohmann_json)
-target_link_libraries(ebmlio PUBLIC EBML::ebml)
-target_link_libraries(ebmlio PRIVATE Matroska::matroska)
-target_link_libraries(ebmlio PUBLIC UbjsonCpp)
+target_link_libraries(ubjsonStorage PUBLIC nlohmann_json::nlohmann_json)
+target_link_libraries(ubjsonStorage PUBLIC EBML::ebml)
+target_link_libraries(ubjsonStorage PRIVATE Matroska::matroska)
+target_link_libraries(ubjsonStorage PUBLIC UbjsonCpp)

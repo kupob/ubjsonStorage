@@ -5,7 +5,7 @@
 
 #include "../UbjsonCpp/include/value.hpp"
 
-namespace ebmlio
+namespace storage
 {
 
 typedef ubjson::Value RawData;

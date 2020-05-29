@@ -5,7 +5,7 @@
 
 #include "TimeStamp.h"
 
-namespace ebmlio
+namespace storage
 {
 
 struct FileInfo

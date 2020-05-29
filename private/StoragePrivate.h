@@ -5,7 +5,7 @@
 #include "../dataTypes/FileInfo.h"
 #include "../dataTypes/RawData.h"
 
-namespace ebmlio
+namespace storage
 {
 
 class Storage;

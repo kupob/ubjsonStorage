@@ -12,7 +12,7 @@
 #include "../UbjsonCpp/include/stream_writer.hpp"
 #include "../UbjsonCpp/include/stream_reader.hpp"
 
-namespace ebmlio
+namespace storage
 {
 
 namespace fs = std::filesystem;

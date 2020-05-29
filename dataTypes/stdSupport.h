@@ -4,7 +4,7 @@
 
 #include "RawData.h"
 
-namespace ebmlio
+namespace storage
 {
 
 template<>

@@ -8,7 +8,7 @@
 #include <string_view>
 #include <experimental/propagate_const>
 
-namespace ebmlio
+namespace storage
 {
 
 class StoragePrivate;
