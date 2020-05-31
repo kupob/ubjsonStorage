@@ -34,11 +34,11 @@ public:
     }
 
     template<typename T>
-    std::vector<T> loadRange(TimeStamp from, TimeStamp to) {
-        std::vector<T> result;
+    std::map<TimeStamp, T> loadRange(TimeStamp from, TimeStamp to) {
+        std::map<TimeStamp, T> result;
 
         for (const auto& data : m_loadRange(from, to)) {
-            result.emplace_back(fromRawData<T>(data));
+            result[data.first] = fromRawData<T>(data.second);
         }
 
         return result;
@@ -57,7 +57,7 @@ public:
 private:
     void m_save(TimeStamp time, const RawData& data);
     std::optional<RawData> m_load(TimeStamp time);
-    std::vector<RawData> m_loadRange(TimeStamp from, TimeStamp to);
+    std::map<TimeStamp, RawData> m_loadRange(TimeStamp from, TimeStamp to);
 
     void m_insert(TimeStamp time, const RawData& data);
 };

@@ -3,11 +3,10 @@ project(ubjsonStorage)
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_compile_definitions(LOG_LEVEL=2)
+
 add_subdirectory(json)
 add_subdirectory(UbjsonCpp)
-
-find_package(EBML 1.3.9 REQUIRED)
-find_package(Matroska CONFIG REQUIRED)
 
 add_library(ubjsonStorage SHARED
         Storage.cpp
@@ -25,11 +24,7 @@ add_library(ubjsonStorage SHARED
 
         private/StoragePrivate.cpp
         private/StoragePrivate.h
-
-        endian.h
         )
 
 target_link_libraries(ubjsonStorage PUBLIC nlohmann_json::nlohmann_json)
-target_link_libraries(ubjsonStorage PUBLIC EBML::ebml)
-target_link_libraries(ubjsonStorage PRIVATE Matroska::matroska)
 target_link_libraries(ubjsonStorage PUBLIC UbjsonCpp)
