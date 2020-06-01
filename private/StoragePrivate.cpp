@@ -35,6 +35,8 @@ StoragePrivate::~StoragePrivate() = default;
 
 void StoragePrivate::save(TimeStamp time, const RawData& data)
 {
+    LOG("SAVE " << time);
+
     beginInsert(time);
 
     insert(time, data);
@@ -44,70 +46,136 @@ void StoragePrivate::save(TimeStamp time, const RawData& data)
 
 std::optional<RawData> StoragePrivate::load(TimeStamp time)
 {
-    auto fileName = findFile(time);
-    auto file = std::filesystem::path (fileName);
-    if (!fs::exists(fileName))
-        return {};
+    LOG("LOAD " << time);
+    beginRead(time);
+    if (m_readFile.isValid()) {
+        LOG("FILE FOUND " << m_readFile.name);
+        auto diff = time - m_readFile.time;
 
-    auto fileTimeStamp = timeFromString(file.stem());
-    auto diff = time - fileTimeStamp;
+        LOG("STORAGE SIZE " << m_readObj.size());
 
-    std::ifstream input;
-    input.open(findFile(time), std::ios::binary);
+        auto it = m_readObj.find(std::to_string(diff));
+        if (it != m_readObj.end()) {
+            auto value = *it;
+            endRead();
+            return value;
+        }
+    }
 
-    ubjson::StreamReader<decltype(input)> reader(input);
-    RawData obj = reader.getNextValue();
-
-    auto it = obj.find(std::to_string(diff));
-    if (it != obj.end())
-        return *it;
-
+    endRead();
     return {};
 }
 
-std::vector<RawData> StoragePrivate::loadRange(TimeStamp from, TimeStamp to)
+std::map<TimeStamp, RawData> StoragePrivate::loadRange(TimeStamp from, TimeStamp to)
 {
-    return {};
+    std::map<TimeStamp, RawData> result;
+
+    beginRead(from);
+    if (m_readFile.isValid()) {
+        auto diffFrom = from - m_readFile.time;
+        auto diffTo = to - m_readFile.time;
+
+        auto keys = m_readObj.keys();
+
+        std::sort(keys.begin(), keys.end(), [this](const auto& key1, const auto& key2) {
+            return std::stol(key1) < std::stol(key2);
+        });
+
+        long diff {0};
+        TimeStamp time {0};
+
+        for (const auto& key : keys) {
+            diff = std::stol(key);
+            if (diffFrom < diff && diff < diffTo) {
+                time = m_readFile.time + diff;
+                result[time] = m_readObj[diff];
+            }
+            else if (diff > diffTo) {
+                ///< we finised, return
+                endRead();
+                return result;
+            }
+        }
+
+        auto subResult = loadRange(time, to);
+        result.insert(subResult.begin(), subResult.end());
+    }
+
+    endRead();
+    return result;
 }
 
 void StoragePrivate::insert(TimeStamp time, const RawData& data)
 {
-    auto diff = time - m_fileTimeStamp;
-    m_obj[std::to_string(diff)] = data;
+    if (m_writeObj.size() >= m_config->getMaxFileSize()) {
+        endInsert();
+        beginInsert(time);
+    }
+
+    auto diff = time - m_writeFile.time;
+    m_writeObj[std::to_string(diff)] = data;
 }
 
 void StoragePrivate::beginInsert(TimeStamp time)
 {
-    m_fileName = findFile(time);
-    bool fileExists = fs::exists(m_fileName);
+    m_writeFile = findFileForWrite(time);
+    bool fileExists = fs::exists(m_writeFile.name);
 
-    auto file = std::filesystem::path (m_fileName);
-    m_fileTimeStamp = fs::exists(m_fileName) ? timeFromString(file.stem()) : time;
+    auto file = std::filesystem::path (m_writeFile.name);
 
     if (fileExists) {
         std::ifstream input;
-        input.open(findFile(time), std::ios::binary);
+        input.open(m_writeFile.name, std::ios::binary);
 
         ubjson::StreamReader<decltype(input)> reader(input);
-        m_obj = reader.getNextValue();
+        m_writeObj = reader.getNextValue();
     }
     else {
-        initNewStorageFile(time, m_fileName);
+        initNewStorageFile(time, m_writeFile.name);
+        m_writeObj = {};
     }
 }
 
 void StoragePrivate::endInsert()
 {
     std::ofstream output;
-    output.open(m_fileName, std::ios::binary);
+    output.open(m_writeFile.name, std::ios::binary);
 
     ubjson::StreamWriter<std::ostream> writer(output);
-    auto result = writer.writeValue(m_obj);
+    auto result = writer.writeValue(m_writeObj);
 
     output.close();
 
-    if(result.second)
-        std::cout << "Successfully wrote: " << result.first << " bytes" << std::endl;
+    if(result.second) {
+        LOG("Successfully wrote: " << result.first << " bytes");
+        LOG("File storage now has " << m_writeObj.size() << " entities");
+
+        m_storageFiles[m_writeFile.time].dataCount = m_writeObj.size();
+        m_writeObj = {};
+    }
+}
+
+void StoragePrivate::beginRead(TimeStamp time)
+{
+    m_readFile = findFileForRead(time);
+    if (!m_readFile.isValid())
+        return;
+
+    auto file = std::filesystem::path (m_readFile.name);
+    if (!fs::exists(m_readFile.name))
+        return;
+
+    std::ifstream input;
+    input.open(m_readFile.name, std::ios::binary);
+
+    ubjson::StreamReader<decltype(input)> reader(input);
+    m_readObj = reader.getNextValue();
+}
+
+void StoragePrivate::endRead()
+{
+    m_readFile = {};
+    m_readObj = {};
 }
 
 void StoragePrivate::checkStorageDir()
@@ -131,21 +199,49 @@ void StoragePrivate::analyzeStorage()
 
 void StoragePrivate::initNewStorageFile(TimeStamp time, std::string_view fileName)
 {
-    m_storageFiles[time] = {fileName.data(), time, 1};
+    m_storageFiles[time] = {fileName.data(), time, 0};
 }
 
-std::string StoragePrivate::findFile(TimeStamp time)
+FileInfo StoragePrivate::findFileForRead(TimeStamp time)
 {
     if (m_storageFiles.empty()) {
-        return generateFileName(time);
+        ///< there is no storage files at all
+        return {};
     }
 
-    auto it = m_storageFiles.lower_bound(time);
+    auto it = m_storageFiles.upper_bound(time);
     if (it == m_storageFiles.begin()) {
-        return generateFileName(time);
+        ///< the first storage file has newer timestamp, so the data is in the past
+        return {};
     }
 
-    return (--it)->second.fileName;
+    return (--it)->second;
+}
+
+FileInfo StoragePrivate::findFileForWrite(TimeStamp time)
+{
+    if (m_storageFiles.empty()) {
+        ///< there is no storage files at all
+        return {generateFileName(time), time, 0};
+    }
+
+    auto it = m_storageFiles.upper_bound(time);
+    if (it->second.time == time) {
+        return it->second;
+    }
+
+    if (it == m_storageFiles.begin()) {
+        ///< the first storage file has newer timestamp, so the data is in the past
+        return {generateFileName(time), time, 0};
+    }
+
+    auto fileInfo = (--it)->second;
+    if (fileInfo.dataCount >= m_config->getMaxFileSize()) {
+        ///< the file is full, so generate new one
+        return {generateFileName(time), time, 0};
+    }
+
+    return fileInfo;
 }
 
 std::string StoragePrivate::generateFileName(TimeStamp time)

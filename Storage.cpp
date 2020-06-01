@@ -23,7 +23,7 @@ std::optional<RawData> Storage::m_load(TimeStamp time)
     return pImpl->load(time);
 }
 
-std::vector<RawData> Storage::m_loadRange(TimeStamp from, TimeStamp to)
+std::map<TimeStamp, RawData> Storage::m_loadRange(TimeStamp from, TimeStamp to)
 {
     return pImpl->loadRange(from, to);
 }
