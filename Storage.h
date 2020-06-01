@@ -23,22 +23,22 @@ public:
     ///< Single save
     template<typename T>
     void save(TimeStamp time, const T& data) {
-        m_save(time, toRawData<T>(data));
+        m_save(time, serialize<T>(data));
     }
 
     ///< Single load
     template<typename T>
     std::optional<T> load(TimeStamp time) {
         auto optRaw = m_load(time);
-        return optRaw.has_value() ? fromRawData<T>(optRaw.value()) : std::optional<T>();
+        return optRaw.has_value() ? deserialize<T>(optRaw.value()) : std::optional<T>();
     }
 
     template<typename T>
-    std::vector<T> loadRange(TimeStamp from, TimeStamp to) {
-        std::vector<T> result;
+    std::map<TimeStamp, T> loadRange(TimeStamp from, TimeStamp to) {
+        std::map<TimeStamp, T> result;
 
         for (const auto& data : m_loadRange(from, to)) {
-            result.emplace_back(fromRawData<T>(data));
+            result[data.first] = deserialize<T>(data.second);
         }
 
         return result;
@@ -47,7 +47,7 @@ public:
     ///< Better for multiple saves but you should embrace it with beginInsert() and endInsert()
     template<typename T>
     void insert(TimeStamp time, const T& data) {
-        m_insert(time, toRawData<T>(data));
+        m_insert(time, serialize<T>(data));
     }
 
     ///< For multiple saves
@@ -57,7 +57,7 @@ public:
 private:
     void m_save(TimeStamp time, const RawData& data);
     std::optional<RawData> m_load(TimeStamp time);
-    std::vector<RawData> m_loadRange(TimeStamp from, TimeStamp to);
+    std::map<TimeStamp, RawData> m_loadRange(TimeStamp from, TimeStamp to);
 
     void m_insert(TimeStamp time, const RawData& data);
 };

@@ -16,8 +16,8 @@ add_library(ubjsonStorage SHARED
         configReader/ConfigReader.h
 
         dataTypes/RawData.h
-        dataTypes/stdSupport.h
-        dataTypes/stdSupport.cpp
+        stdSupport.h
+        stdSupport.cpp
         dataTypes/TimeStamp.h
         dataTypes/FileInfo.h
 
