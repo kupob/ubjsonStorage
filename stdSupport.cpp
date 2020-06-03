@@ -7,45 +7,69 @@ namespace storage
 {
 
 template<>
-RawData serialize(const std::string &data)
+RawData serialize(const unsigned int& data)
 {
-    return data;
+    return RawData {(unsigned long long) data};
 }
 
 template<>
-RawData serialize(const double& data)
+RawData serialize(const int8_t& data)
 {
-    return data;
+    return RawData {(int) data};
 }
 
 template<>
-RawData serialize(const int& data)
+RawData serialize(const uint8_t& data)
 {
-    return data;
+    return RawData {(unsigned long long) data};
 }
 
 template<>
-std::optional<std::string> deserialize(const RawData &data)
+RawData serialize(const int16_t& data)
 {
-    return data.asString();
+    return RawData {(int) data};
 }
 
 template<>
-std::optional<double> deserialize (const RawData& data)
+RawData serialize(const uint16_t& data)
 {
-    return data.asFloat();
+    return RawData {(unsigned long long) data};
 }
 
 template<>
-std::optional<int> deserialize (const RawData& data)
+std::optional<unsigned int> deserialize(const RawData& data)
+{
+    return data.asUint64();
+}
+
+template<>
+std::optional<unsigned long long> deserialize (const RawData& data)
+{
+    return data.asUint64();
+}
+
+template<>
+std::optional<int8_t> deserialize (const RawData& data)
 {
     return data.asInt();
 }
 
 template<>
-std::optional<bool> deserialize (const RawData& data)
+std::optional<uint8_t> deserialize (const RawData& data)
 {
-    return data.asBool();
+    return data.asUint();
+}
+
+template<>
+std::optional<int16_t> deserialize (const RawData& data)
+{
+    return data.asInt();
+}
+
+template<>
+std::optional<uint16_t> deserialize (const RawData& data)
+{
+    return data.asUint();
 }
 
 }
